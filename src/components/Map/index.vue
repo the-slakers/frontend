@@ -1,6 +1,19 @@
 <template>
-  <div id="map" class="CampusMap">
-    <!-- Raphaël JS Map Here -->
+  <div class="main">
+
+    <div id="map" class="CampusMap">
+      <!-- Raphaël JS Map Here -->
+    </div>
+
+    <div class="card-panel">
+      <div class="card-panel-text">Building</div>
+      <h1>{{ currentBuilding }}</h1>
+    </div>
+
+    <div class="card-panel">
+      <div class="card-panel-text">Temperature</div>
+      <h1>{{ temerature }}</h1>
+    </div>
   </div>
 </template>
 
@@ -12,6 +25,7 @@
   export default {
    name: 'CampusMap',
    mounted(){
+    var _t = this;
     var fillColor = "#fff";
     var strokeWidth = 0;
     var rsr = Raphael('map', '1000.8', '439.3');
@@ -20,8 +34,10 @@
     for (let key in obj){
       obj[key].node.style.fill = "#5b5b5b";
       obj[key].mouseover(function(e){
-        this.node.style.fill = "#ff0000";
+        // this.node.style.fill = "#ff0000";
         console.log(key)
+        console.log(_t.currentBuilding)
+        _t.currentBuilding = key.toString()
       });
       obj[key].click(e=>{
         console.log(obj[key])
@@ -32,7 +48,12 @@
           },
           crossDomain: true
         })
-        .then(res => (obj[key].node.style.fill = getColorFromTemp(Math.round(res.data.Value.Value))))
+        .then(res => {
+          let temp = res.data.Value.Value
+          obj[key].node.style.fill = getColorFromTemp(Math.round(temp))
+          _t.temerature = Math.round(temp * 100) / 100 + " c"
+
+        })
       })
       obj[key].mouseout(function(e){
         // this.node.style.fill = "#FF00FF";
@@ -67,6 +88,12 @@
       }
     }, 200);
   })(100);
+},
+data() {
+  return {
+    currentBuilding: 'BuildingID',
+    temerature: ''
+  }
 }
 }
 </script>
@@ -75,5 +102,78 @@
   background-image: url('/static/Map.png');
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+.panel-group {
+  margin-top: 18px;
+  .card-panel-col{
+    margin-bottom: 32px;
+  }
+  .card-panel {
+    height: 108px;
+    cursor: pointer;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    color: #666;
+    background: #fff;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
+    border-color: rgba(0, 0, 0, .05);
+    &:hover {
+      .card-panel-icon-wrapper {
+        color: #fff;
+      }
+      .icon-people {
+       background: #40c9c6;
+     }
+     .icon-message {
+      background: #36a3f7;
+    }
+    .icon-money {
+      background: #f4516c;
+    }
+    .icon-shopping {
+      background: #34bfa3
+    }
+  }
+  .icon-people {
+    color: #40c9c6;
+  }
+  .icon-message {
+    color: #36a3f7;
+  }
+  .icon-money {
+    color: #f4516c;
+  }
+  .icon-shopping {
+    color: #34bfa3
+  }
+  .card-panel-icon-wrapper {
+    float: left;
+    margin: 14px 0 0 14px;
+    padding: 16px;
+    transition: all 0.38s ease-out;
+    border-radius: 6px;
+  }
+  .card-panel-icon {
+    float: left;
+    font-size: 48px;
+  }
+  .card-panel-description {
+    float: right;
+    font-weight: bold;
+    margin: 26px;
+    margin-left: 0px;
+    .card-panel-text {
+      line-height: 18px;
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .card-panel-num {
+      font-size: 20px;
+    }
+  }
+}
 }
 </style>
